@@ -62,6 +62,9 @@ Thumbs.db
 # Spring Boot
 spring-shell.log
 
+# H2 runtime database files
+data/
+
 # Environment
 .env
 *.env.local

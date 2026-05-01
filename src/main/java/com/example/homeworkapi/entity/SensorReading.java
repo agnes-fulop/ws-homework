@@ -23,7 +23,7 @@ public class SensorReading {
     @Column(nullable = false)
     private String metric;
 
-    @Column(nullable = false)
+    @Column(name = "reading_value, nullable = false")
     private Double value;
 
     @Column(nullable = false)
