@@ -5,12 +5,14 @@ import com.example.homeworkapi.dto.SensorQueryRequest;
 import com.example.homeworkapi.dto.SensorQueryResponse;
 import com.example.homeworkapi.dto.SensorReadingRequest;
 import com.example.homeworkapi.dto.SensorReadingResponse;
+import com.example.homeworkapi.entity.Sensor;
 import com.example.homeworkapi.entity.SensorReading;
 import com.example.homeworkapi.exception.InvalidDateRangeException;
 import com.example.homeworkapi.exception.SensorNotFoundException;
 import com.example.homeworkapi.repository.SensorReadingRepository;
 import com.example.homeworkapi.repository.SensorRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -31,32 +33,29 @@ public class SensorReadingServiceImpl implements SensorReadingService {
     }
 
     @Override
+    @Transactional
     public SensorReadingResponse recordReading(String sensorId, SensorReadingRequest request) {
-        if (!sensorRepository.existsById(sensorId)) {
-            throw new SensorNotFoundException(sensorId);
-        }
+        Sensor sensor = sensorRepository.findById(sensorId)
+                .orElseThrow(() -> new SensorNotFoundException(sensorId));
         SensorReading saved = readingRepository.save(
-                new SensorReading(sensorId, request.metric(), request.value(), Instant.now()));
+                new SensorReading(sensor, request.metric(), request.value(), Instant.now()));
         return toResponse(saved);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SensorQueryResponse queryAverages(SensorQueryRequest request) {
+        if (request.sensorIds() != null && request.sensorIds().isEmpty()) {
+            return new SensorQueryResponse(List.of());
+        }
+
         DateRange range = resolveDateRange(request.from(), request.to());
 
-        List<Object[]> rows = isQueryingAllSensors(request)
+        List<MetricAverage> averages = request.sensorIds() == null
                 ? readingRepository.findAveragesByMetricsAndDateRange(request.metrics(), range.from(), range.to())
                 : readingRepository.findAveragesBySensorIdsAndMetricsAndDateRange(request.sensorIds(), request.metrics(), range.from(), range.to());
 
-        List<MetricAverage> averages = rows.stream()
-                .map(row -> new MetricAverage((String) row[0], (Double) row[1]))
-                .toList();
-
         return new SensorQueryResponse(averages);
-    }
-
-    private boolean isQueryingAllSensors(SensorQueryRequest request) {
-        return request.sensorIds() == null || request.sensorIds().isEmpty();
     }
 
     private DateRange resolveDateRange(LocalDate from, LocalDate to) {
@@ -81,7 +80,7 @@ public class SensorReadingServiceImpl implements SensorReadingService {
     private SensorReadingResponse toResponse(SensorReading reading) {
         return new SensorReadingResponse(
                 reading.getId(),
-                reading.getSensorId(),
+                reading.getSensor().getId(),
                 reading.getMetric(),
                 reading.getValue(),
                 reading.getRecordedAt());

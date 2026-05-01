@@ -5,7 +5,9 @@ import com.example.homeworkapi.dto.SensorResponse;
 import com.example.homeworkapi.entity.Sensor;
 import com.example.homeworkapi.exception.SensorAlreadyExistsException;
 import com.example.homeworkapi.repository.SensorRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SensorServiceImpl implements SensorService {
@@ -17,12 +19,13 @@ public class SensorServiceImpl implements SensorService {
     }
 
     @Override
+    @Transactional
     public SensorResponse registerSensor(RegisterSensorRequest request) {
-        if (sensorRepository.existsById(request.id())) {
+        try {
+            return toResponse(sensorRepository.saveAndFlush(toEntity(request)));
+        } catch (DataIntegrityViolationException e) {
             throw new SensorAlreadyExistsException(request.id());
         }
-        Sensor saved = sensorRepository.save(toEntity(request));
-        return toResponse(saved);
     }
 
     private Sensor toEntity(RegisterSensorRequest request) {
