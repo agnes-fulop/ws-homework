@@ -11,10 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.dao.DataIntegrityViolationException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,22 +31,20 @@ class SensorServiceImplTest {
     @Test
     void registerSensor_savesAndReturnsResponse() {
         var request = new RegisterSensorRequest("SN-001", "Hungary", "Budapest");
-        when(sensorRepository.existsById("SN-001")).thenReturn(false);
-        when(sensorRepository.save(any(Sensor.class))).thenReturn(new Sensor("SN-001", "Hungary", "Budapest"));
+        when(sensorRepository.saveAndFlush(any(Sensor.class))).thenReturn(new Sensor("SN-001", "Hungary", "Budapest"));
 
         SensorResponse response = sensorService.registerSensor(request);
 
         assertThat(response.id()).isEqualTo("SN-001");
         assertThat(response.country()).isEqualTo("Hungary");
         assertThat(response.city()).isEqualTo("Budapest");
-        verify(sensorRepository).save(any(Sensor.class));
+        verify(sensorRepository).saveAndFlush(any(Sensor.class));
     }
 
     @Test
     void registerSensor_withNullMetadata_returnsResponseWithNulls() {
         var request = new RegisterSensorRequest("SN-002", null, null);
-        when(sensorRepository.existsById("SN-002")).thenReturn(false);
-        when(sensorRepository.save(any(Sensor.class))).thenReturn(new Sensor("SN-002", null, null));
+        when(sensorRepository.saveAndFlush(any(Sensor.class))).thenReturn(new Sensor("SN-002", null, null));
 
         SensorResponse response = sensorService.registerSensor(request);
 
@@ -57,12 +56,12 @@ class SensorServiceImplTest {
     @Test
     void registerSensor_throwsSensorAlreadyExistsException_whenIdAlreadyRegistered() {
         var request = new RegisterSensorRequest("SN-001", "Hungary", "Budapest");
-        when(sensorRepository.existsById("SN-001")).thenReturn(true);
+        when(sensorRepository.saveAndFlush(any(Sensor.class))).thenThrow(DataIntegrityViolationException.class);
 
         assertThatThrownBy(() -> sensorService.registerSensor(request))
                 .isInstanceOf(SensorAlreadyExistsException.class)
                 .hasMessageContaining("SN-001");
 
-        verify(sensorRepository, never()).save(any());
+        verify(sensorRepository).saveAndFlush(any(Sensor.class));
     }
 }

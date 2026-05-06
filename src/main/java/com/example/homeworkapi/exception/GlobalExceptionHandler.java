@@ -35,6 +35,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponse("INVALID_DATE_RANGE", ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidMetricValueException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidMetricValue(InvalidMetricValueException ex) {
+        return ResponseEntity.badRequest().body(new ErrorResponse("INVALID_METRIC_VALUE", ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

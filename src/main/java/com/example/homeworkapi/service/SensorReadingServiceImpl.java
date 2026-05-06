@@ -8,7 +8,9 @@ import com.example.homeworkapi.dto.SensorReadingResponse;
 import com.example.homeworkapi.entity.Sensor;
 import com.example.homeworkapi.entity.SensorReading;
 import com.example.homeworkapi.exception.InvalidDateRangeException;
+import com.example.homeworkapi.exception.InvalidMetricValueException;
 import com.example.homeworkapi.exception.SensorNotFoundException;
+import com.example.homeworkapi.validation.MetricConstraints;
 import com.example.homeworkapi.repository.SensorReadingRepository;
 import com.example.homeworkapi.repository.SensorRepository;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,13 @@ public class SensorReadingServiceImpl implements SensorReadingService {
     public SensorReadingResponse recordReading(String sensorId, SensorReadingRequest request) {
         Sensor sensor = sensorRepository.findById(sensorId)
                 .orElseThrow(() -> new SensorNotFoundException(sensorId));
+        MetricConstraints.forMetric(request.metric()).ifPresent(constraints -> {
+            if (!constraints.isValid(request.value())) {
+                throw new InvalidMetricValueException(
+                        request.metric(), request.value(),
+                        constraints.getMin(), constraints.getMax(), constraints.getUnit());
+            }
+        });
         SensorReading saved = readingRepository.save(
                 new SensorReading(sensor, request.metric(), request.value(), Instant.now()));
         return toResponse(saved);

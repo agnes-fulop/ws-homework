@@ -2,19 +2,44 @@ import { useActionState, useState } from 'react'
 import { recordReading } from '../api'
 import ResponseDisplay from './ResponseDisplay'
 
-const PRESET_METRICS = ['temperature', 'humidity', 'wind_speed', 'pressure']
+const METRIC_CONSTRAINTS = {
+  temperature: { min: -90,  max: 60,   unit: '°C'  },
+  humidity:    { min: 0,    max: 100,  unit: '%'   },
+  wind_speed:  { min: 0,    max: 500,  unit: 'km/h' },
+  pressure:    { min: 300,  max: 1100, unit: 'hPa' },
+}
+
+const PRESET_METRICS = Object.keys(METRIC_CONSTRAINTS)
 
 async function recordAction(prevState, formData) {
   const sensorId = formData.get('sensorId').trim()
   const metricSelect = formData.get('metricSelect')
   const metric = metricSelect === '__custom__' ? formData.get('customMetric').trim() : metricSelect
   const value = parseFloat(formData.get('value'))
+
+  const constraints = METRIC_CONSTRAINTS[metric]
+  if (constraints && (value < constraints.min || value > constraints.max)) {
+    return {
+      data: null,
+      error: { message: `${metric} must be between ${constraints.min} and ${constraints.max} ${constraints.unit}` },
+    }
+  }
+
   return recordReading(sensorId, { metric, value })
 }
 
 export default function RecordReading() {
   const [state, formAction, isPending] = useActionState(recordAction, { data: null, error: null })
   const [isCustom, setIsCustom] = useState(false)
+  const [selectedMetric, setSelectedMetric] = useState(PRESET_METRICS[0])
+
+  const constraints = METRIC_CONSTRAINTS[selectedMetric]
+
+  function handleMetricChange(e) {
+    const val = e.target.value
+    setIsCustom(val === '__custom__')
+    setSelectedMetric(val === '__custom__' ? null : val)
+  }
 
   return (
     <div className="panel">
@@ -33,11 +58,7 @@ export default function RecordReading() {
 
         <div className="field">
           <label htmlFor="rec-metric">Metric *</label>
-          <select
-            id="rec-metric"
-            name="metricSelect"
-            onChange={e => setIsCustom(e.target.value === '__custom__')}
-          >
+          <select id="rec-metric" name="metricSelect" onChange={handleMetricChange}>
             {PRESET_METRICS.map(m => (
               <option key={m} value={m}>{m}</option>
             ))}
@@ -60,8 +81,15 @@ export default function RecordReading() {
             type="number"
             step="any"
             required
-            placeholder="e.g. 22.5"
+            min={constraints?.min}
+            max={constraints?.max}
+            placeholder={constraints ? `${constraints.min} to ${constraints.max}` : 'e.g. 0.0'}
           />
+          {constraints && (
+            <span className="hint">
+              Valid range: {constraints.min} – {constraints.max} {constraints.unit}
+            </span>
+          )}
         </div>
 
         <button type="submit" disabled={isPending} className="btn-primary">
