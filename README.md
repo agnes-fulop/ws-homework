@@ -18,7 +18,7 @@ For production considerations (auth, database choice, testing strategy, and engi
 | Frontend | React 19 + Vite |
 | Container | Docker + nginx |
 
-> **Note:** The H2 database is in-memory — all data is lost on restart.
+> **Note:** The H2 database is in-memory — all data is lost on restart. It is only used for the purpose of this exercise.
 
 ---
 
