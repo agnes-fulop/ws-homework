@@ -243,3 +243,5 @@ To stop: `docker compose down`
 | Swagger UI | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | Interactive API documentation |
 | H2 Console | [http://localhost:8080/h2-console](http://localhost:8080/h2-console) | JDBC URL: `jdbc:h2:mem:sensorsdb`, user: `sa`, password: *(blank)* |
 | Actuator Health | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) | |
+| Actuator Metrics | [http://localhost:8080/actuator/metrics](http://localhost:8080/actuator/metrics) | Lists available metrics; append `/{metric.name}` for detail |
+| Actuator Loggers | [http://localhost:8080/actuator/loggers](http://localhost:8080/actuator/loggers) | View and change log levels at runtime via POST |

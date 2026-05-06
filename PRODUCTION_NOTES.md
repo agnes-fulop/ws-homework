@@ -46,6 +46,21 @@ The current test suite covers unit tests and web layer (`@WebMvcTest`) tests. A 
 
 ---
 
+## Logging & Monitoring
+
+Basic logging and monitoring are in place:
+
+- **Logging** — SLF4J/Logback logs key lifecycle events at `INFO` (sensor registered, reading recorded) and `WARN` (duplicate registration, sensor not found, invalid metric value); unexpected errors are logged at `ERROR` with a full stack trace in `GlobalExceptionHandler`
+- **Monitoring** — Spring Boot Actuator exposes `/actuator/health`, `/actuator/metrics` (JVM, HTTP request counts, DB pool stats via Micrometer), and `/actuator/loggers` (runtime log-level management)
+
+What would be added for production:
+
+- **Structured logging** — switch to JSON log output so logs can be ingested by an aggregation platform (ELK stack, Datadog, Grafana Loki)
+- **Distributed tracing** — add OpenTelemetry instrumentation to correlate requests across services when the architecture grows beyond a single backend
+- **Alerting** — define alert rules on error rate, latency thresholds, and JVM memory pressure so on-call engineers are notified before users notice
+
+---
+
 ## Code Quality & Engineering Standards
 
 - **Linting and static analysis** — integrate tools such as Checkstyle, SpotBugs, or SonarQube into the CI pipeline to catch style violations and potential bugs automatically

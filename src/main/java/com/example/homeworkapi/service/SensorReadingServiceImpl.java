@@ -13,6 +13,8 @@ import com.example.homeworkapi.exception.SensorNotFoundException;
 import com.example.homeworkapi.validation.MetricConstraints;
 import com.example.homeworkapi.repository.SensorReadingRepository;
 import com.example.homeworkapi.repository.SensorRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,8 @@ import java.util.List;
 
 @Service
 public class SensorReadingServiceImpl implements SensorReadingService {
+
+    private static final Logger log = LoggerFactory.getLogger(SensorReadingServiceImpl.class);
 
     private final SensorReadingRepository readingRepository;
     private final SensorRepository sensorRepository;
@@ -38,9 +42,14 @@ public class SensorReadingServiceImpl implements SensorReadingService {
     @Transactional
     public SensorReadingResponse recordReading(String sensorId, SensorReadingRequest request) {
         Sensor sensor = sensorRepository.findById(sensorId)
-                .orElseThrow(() -> new SensorNotFoundException(sensorId));
+                .orElseThrow(() -> {
+                    log.warn("Reading rejected — sensor not found: id={}", sensorId);
+                    return new SensorNotFoundException(sensorId);
+                });
         MetricConstraints.forMetric(request.metric()).ifPresent(constraints -> {
             if (!constraints.isValid(request.value())) {
+                log.warn("Reading rejected — value out of range: sensorId={}, metric={}, value={}",
+                        sensorId, request.metric(), request.value());
                 throw new InvalidMetricValueException(
                         request.metric(), request.value(),
                         constraints.getMin(), constraints.getMax(), constraints.getUnit());
@@ -48,6 +57,7 @@ public class SensorReadingServiceImpl implements SensorReadingService {
         });
         SensorReading saved = readingRepository.save(
                 new SensorReading(sensor, request.metric(), request.value(), Instant.now()));
+        log.info("Reading recorded: sensorId={}, metric={}, value={}", sensorId, request.metric(), request.value());
         return toResponse(saved);
     }
 
@@ -59,6 +69,8 @@ public class SensorReadingServiceImpl implements SensorReadingService {
         }
 
         DateRange range = resolveDateRange(request.from(), request.to());
+        log.debug("Querying averages: metrics={}, sensorIds={}, from={}, to={}",
+                request.metrics(), request.sensorIds(), range.from(), range.to());
 
         List<MetricAverage> averages = request.sensorIds() == null
                 ? readingRepository.findAveragesByMetricsAndDateRange(request.metrics(), range.from(), range.to())
