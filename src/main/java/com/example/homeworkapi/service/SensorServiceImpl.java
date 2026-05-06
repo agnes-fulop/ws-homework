@@ -25,22 +25,22 @@ public class SensorServiceImpl implements SensorService {
     @Override
     @Transactional
     public SensorResponse registerSensor(RegisterSensorRequest request) {
-        log.info("Registering sensor: id={}", request.id());
+        log.info("Registering sensor: sensorId={}", request.sensorId());
         try {
             SensorResponse response = toResponse(sensorRepository.saveAndFlush(toEntity(request)));
-            log.info("Sensor registered: id={}", response.id());
+            log.info("Sensor registered: id={}, sensorId={}", response.id(), response.sensorId());
             return response;
         } catch (DataIntegrityViolationException e) {
-            log.warn("Rejected duplicate sensor registration: id={}", request.id());
-            throw new SensorAlreadyExistsException(request.id());
+            log.warn("Rejected duplicate sensor registration: sensorId={}", request.sensorId());
+            throw new SensorAlreadyExistsException(request.sensorId());
         }
     }
 
     private Sensor toEntity(RegisterSensorRequest request) {
-        return new Sensor(request.id(), request.country(), request.city());
+        return new Sensor(request.sensorId(), request.country(), request.city());
     }
 
     private SensorResponse toResponse(Sensor sensor) {
-        return new SensorResponse(sensor.getId(), sensor.getCountry(), sensor.getCity());
+        return new SensorResponse(sensor.getId(), sensor.getSensorId(), sensor.getCountry(), sensor.getCity());
     }
 }

@@ -3,7 +3,7 @@ import { registerSensor } from '../api'
 import ResponseDisplay from './ResponseDisplay'
 
 async function registerAction(prevState, formData) {
-  const body = { id: formData.get('id') }
+  const body = { sensorId: formData.get('sensorId') }
   const country = formData.get('country').trim()
   const city = formData.get('city').trim()
   if (country) body.country = country
@@ -26,7 +26,7 @@ export default function RegisterSensor() {
       <form action={formAction} className="form">
         <div className="field">
           <label htmlFor="reg-id">Sensor ID *</label>
-          <input id="reg-id" name="id" required placeholder="e.g. sensor-berlin-01" />
+          <input id="reg-id" name="sensorId" required placeholder="e.g. sensor-berlin-01" />
         </div>
 
         <div className="field-row">

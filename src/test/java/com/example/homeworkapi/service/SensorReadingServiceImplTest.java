@@ -39,7 +39,7 @@ class SensorReadingServiceImplTest {
 
     @Test
     void recordReading_throwsSensorNotFoundException_whenSensorDoesNotExist() {
-        when(sensorRepository.findById("unknown")).thenReturn(Optional.empty());
+        when(sensorRepository.findBySensorId("unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.recordReading("unknown", new SensorReadingRequest("temperature", 20.0)))
                 .isInstanceOf(SensorNotFoundException.class);
@@ -49,7 +49,7 @@ class SensorReadingServiceImplTest {
 
     @Test
     void recordReading_throwsInvalidMetricValueException_whenHumidityExceedsMax() {
-        when(sensorRepository.findById("s1")).thenReturn(Optional.of(sensor));
+        when(sensorRepository.findBySensorId("s1")).thenReturn(Optional.of(sensor));
 
         assertThatThrownBy(() -> service.recordReading("s1", new SensorReadingRequest("humidity", 101.0)))
                 .isInstanceOf(InvalidMetricValueException.class)
@@ -60,7 +60,7 @@ class SensorReadingServiceImplTest {
 
     @Test
     void recordReading_throwsInvalidMetricValueException_whenTemperatureBelowMin() {
-        when(sensorRepository.findById("s1")).thenReturn(Optional.of(sensor));
+        when(sensorRepository.findBySensorId("s1")).thenReturn(Optional.of(sensor));
 
         assertThatThrownBy(() -> service.recordReading("s1", new SensorReadingRequest("temperature", -91.0)))
                 .isInstanceOf(InvalidMetricValueException.class)
@@ -71,7 +71,7 @@ class SensorReadingServiceImplTest {
 
     @Test
     void recordReading_throwsInvalidMetricValueException_whenWindSpeedIsNegative() {
-        when(sensorRepository.findById("s1")).thenReturn(Optional.of(sensor));
+        when(sensorRepository.findBySensorId("s1")).thenReturn(Optional.of(sensor));
 
         assertThatThrownBy(() -> service.recordReading("s1", new SensorReadingRequest("wind_speed", -1.0)))
                 .isInstanceOf(InvalidMetricValueException.class)
@@ -82,7 +82,7 @@ class SensorReadingServiceImplTest {
 
     @Test
     void recordReading_succeeds_whenValueIsAtBoundary() {
-        when(sensorRepository.findById("s1")).thenReturn(Optional.of(sensor));
+        when(sensorRepository.findBySensorId("s1")).thenReturn(Optional.of(sensor));
         when(readingRepository.save(any())).thenReturn(new SensorReading(sensor, "humidity", 100.0, Instant.now()));
 
         var response = service.recordReading("s1", new SensorReadingRequest("humidity", 100.0));
@@ -93,7 +93,7 @@ class SensorReadingServiceImplTest {
 
     @Test
     void recordReading_succeeds_whenValueIsValidForKnownMetric() {
-        when(sensorRepository.findById("s1")).thenReturn(Optional.of(sensor));
+        when(sensorRepository.findBySensorId("s1")).thenReturn(Optional.of(sensor));
         when(readingRepository.save(any())).thenReturn(new SensorReading(sensor, "temperature", 22.5, Instant.now()));
 
         var response = service.recordReading("s1", new SensorReadingRequest("temperature", 22.5));
@@ -105,7 +105,7 @@ class SensorReadingServiceImplTest {
 
     @Test
     void recordReading_skipsConstraintCheck_forCustomMetric() {
-        when(sensorRepository.findById("s1")).thenReturn(Optional.of(sensor));
+        when(sensorRepository.findBySensorId("s1")).thenReturn(Optional.of(sensor));
         when(readingRepository.save(any())).thenReturn(new SensorReading(sensor, "co2_level", 9999.0, Instant.now()));
 
         var response = service.recordReading("s1", new SensorReadingRequest("co2_level", 9999.0));

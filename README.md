@@ -26,11 +26,12 @@ For production considerations (auth, database choice, testing strategy, and engi
 
 ### Sensor
 
-Represents a physical sensor device. The ID is client-supplied (not auto-generated).
+Represents a physical sensor device. The database primary key (`id`) is auto-generated; the human-readable identifier (`sensorId`) is supplied by the client.
 
 | Field | Type | Constraints |
 |---|---|---|
-| `id` | `String` | Required, unique, immutable |
+| `id` | `Long` | Auto-generated primary key, not exposed in requests |
+| `sensorId` | `String` | Required, unique, client-supplied |
 | `country` | `String` | Optional |
 | `city` | `String` | Optional |
 
@@ -41,7 +42,7 @@ A single metric measurement recorded by a sensor.
 | Field | Type | Constraints |
 |---|---|---|
 | `id` | `Long` | Auto-generated |
-| `sensor` | `Sensor` | Required, FK with referential integrity |
+| `sensor` | `Sensor` | Required, FK on `sensors.id` (auto-generated PK) |
 | `metric` | `String` | Required (e.g. `temperature`, `humidity`) |
 | `value` | `Double` | Required |
 | `recordedAt` | `Instant` | Set server-side at time of ingestion |
@@ -67,7 +68,7 @@ All endpoints are prefixed with `/api`. Dates are ISO-8601 strings. Error respon
 **Request body:**
 ```json
 {
-  "id": "sensor-berlin-01",
+  "sensorId": "sensor-berlin-01",
   "country": "Germany",
   "city": "Berlin"
 }
@@ -75,14 +76,24 @@ All endpoints are prefixed with `/api`. Dates are ISO-8601 strings. Error respon
 
 | Field | Required |
 |---|---|
-| `id` | Yes |
+| `sensorId` | Yes |
 | `country` | No |
 | `city` | No |
 
+**Response body:**
+```json
+{
+  "id": 1,
+  "sensorId": "sensor-berlin-01",
+  "country": "Germany",
+  "city": "Berlin"
+}
+```
+
 **Responses:**
 - `201 Created` — sensor registered
-- `400 Bad Request` — validation failure (missing `id`)
-- `409 Conflict` — sensor with that ID already exists
+- `400 Bad Request` — validation failure (missing `sensorId`)
+- `409 Conflict` — sensor with that `sensorId` already exists
 
 ---
 
@@ -241,7 +252,6 @@ To stop: `docker compose down`
 | Tool | URL | Notes |
 |---|---|---|
 | Swagger UI | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | Interactive API documentation |
-| H2 Console | [http://localhost:8080/h2-console](http://localhost:8080/h2-console) | JDBC URL: `jdbc:h2:mem:sensorsdb`, user: `sa`, password: *(blank)* |
 | Actuator Health | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) | |
 | Actuator Metrics | [http://localhost:8080/actuator/metrics](http://localhost:8080/actuator/metrics) | Lists available metrics; append `/{metric.name}` for detail |
 | Actuator Loggers | [http://localhost:8080/actuator/loggers](http://localhost:8080/actuator/loggers) | View and change log levels at runtime via POST |

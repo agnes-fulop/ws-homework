@@ -1,3 +1,3 @@
 package com.example.homeworkapi.dto;
 
-public record SensorResponse(String id, String country, String city) {}
+public record SensorResponse(Long id, String sensorId, String country, String city) {}

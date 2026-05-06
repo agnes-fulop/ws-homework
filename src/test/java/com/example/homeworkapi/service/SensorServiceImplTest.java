@@ -35,7 +35,7 @@ class SensorServiceImplTest {
 
         SensorResponse response = sensorService.registerSensor(request);
 
-        assertThat(response.id()).isEqualTo("SN-001");
+        assertThat(response.sensorId()).isEqualTo("SN-001");
         assertThat(response.country()).isEqualTo("Hungary");
         assertThat(response.city()).isEqualTo("Budapest");
         verify(sensorRepository).saveAndFlush(any(Sensor.class));
@@ -48,7 +48,7 @@ class SensorServiceImplTest {
 
         SensorResponse response = sensorService.registerSensor(request);
 
-        assertThat(response.id()).isEqualTo("SN-002");
+        assertThat(response.sensorId()).isEqualTo("SN-002");
         assertThat(response.country()).isNull();
         assertThat(response.city()).isNull();
     }

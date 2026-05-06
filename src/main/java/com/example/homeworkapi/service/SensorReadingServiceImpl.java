@@ -41,9 +41,9 @@ public class SensorReadingServiceImpl implements SensorReadingService {
     @Override
     @Transactional
     public SensorReadingResponse recordReading(String sensorId, SensorReadingRequest request) {
-        Sensor sensor = sensorRepository.findById(sensorId)
+        Sensor sensor = sensorRepository.findBySensorId(sensorId)
                 .orElseThrow(() -> {
-                    log.warn("Reading rejected — sensor not found: id={}", sensorId);
+                    log.warn("Reading rejected — sensor not found: sensorId={}", sensorId);
                     return new SensorNotFoundException(sensorId);
                 });
         MetricConstraints.forMetric(request.metric()).ifPresent(constraints -> {
@@ -101,7 +101,7 @@ public class SensorReadingServiceImpl implements SensorReadingService {
     private SensorReadingResponse toResponse(SensorReading reading) {
         return new SensorReadingResponse(
                 reading.getId(),
-                reading.getSensor().getId(),
+                reading.getSensor().getSensorId(),
                 reading.getMetric(),
                 reading.getValue(),
                 reading.getRecordedAt());

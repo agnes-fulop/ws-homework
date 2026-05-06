@@ -25,7 +25,7 @@ public class SensorReading {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "sensor_id", nullable = false, updatable = false)
+    @JoinColumn(name = "sensor_id", referencedColumnName = "id", nullable = false, updatable = false)
     private Sensor sensor;
 
     @Column(nullable = false)

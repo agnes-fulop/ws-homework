@@ -28,15 +28,16 @@ class SensorControllerTest {
     @Test
     void registerSensor_returns201WithSensorBody() throws Exception {
         when(sensorService.registerSensor(any()))
-                .thenReturn(new SensorResponse("SN-001", "Hungary", "Budapest"));
+                .thenReturn(new SensorResponse(1L, "SN-001", "Hungary", "Budapest"));
 
         mockMvc.perform(post("/api/sensors")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"id": "SN-001", "country": "Hungary", "city": "Budapest"}
+                                {"sensorId": "SN-001", "country": "Hungary", "city": "Budapest"}
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value("SN-001"))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.sensorId").value("SN-001"))
                 .andExpect(jsonPath("$.country").value("Hungary"))
                 .andExpect(jsonPath("$.city").value("Budapest"));
     }
@@ -44,15 +45,15 @@ class SensorControllerTest {
     @Test
     void registerSensor_returns201WithNullMetadata_whenMetadataOmitted() throws Exception {
         when(sensorService.registerSensor(any()))
-                .thenReturn(new SensorResponse("SN-002", null, null));
+                .thenReturn(new SensorResponse(2L, "SN-002", null, null));
 
         mockMvc.perform(post("/api/sensors")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"id": "SN-002"}
+                                {"sensorId": "SN-002"}
                                 """))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value("SN-002"))
+                .andExpect(jsonPath("$.sensorId").value("SN-002"))
                 .andExpect(jsonPath("$.country").doesNotExist());
     }
 
@@ -64,7 +65,7 @@ class SensorControllerTest {
         mockMvc.perform(post("/api/sensors")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"id": "SN-001"}
+                                {"sensorId": "SN-001"}
                                 """))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error").value("CONFLICT"))
@@ -72,23 +73,23 @@ class SensorControllerTest {
     }
 
     @Test
-    void registerSensor_returns400_whenIdIsBlank() throws Exception {
+    void registerSensor_returns400_whenSensorIdIsBlank() throws Exception {
         mockMvc.perform(post("/api/sensors")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"id": ""}
+                                {"sensorId": ""}
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"))
-                .andExpect(jsonPath("$.message").value("id: must not be blank"));
+                .andExpect(jsonPath("$.message").value("sensorId: must not be blank"));
     }
 
     @Test
-    void registerSensor_returns400_whenIdIsNull() throws Exception {
+    void registerSensor_returns400_whenSensorIdIsNull() throws Exception {
         mockMvc.perform(post("/api/sensors")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"id": null}
+                                {"sensorId": null}
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));

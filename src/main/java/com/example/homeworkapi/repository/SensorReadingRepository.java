@@ -14,7 +14,7 @@ public interface SensorReadingRepository extends JpaRepository<SensorReading, Lo
     @Query("""
             SELECT new com.example.homeworkapi.dto.MetricAverage(r.metric, AVG(r.value))
             FROM SensorReading r
-            WHERE r.sensor.id IN :sensorIds
+            WHERE r.sensor.sensorId IN :sensorIds
               AND r.metric IN :metrics
               AND r.recordedAt >= :from
               AND r.recordedAt < :to
