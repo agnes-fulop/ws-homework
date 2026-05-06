@@ -16,10 +16,12 @@ The current API has no access control. In production:
 
 ## Input Validation
 
-Backend validation is implemented via Jakarta Bean Validation on request DTOs. In production this would be extended:
+Backend validation is implemented via Jakarta Bean Validation on request DTOs. Value range constraints for known metrics (temperature, humidity, wind_speed, pressure) are enforced on both the backend (`MetricConstraints`) and the frontend (HTML5 `min`/`max` attributes and a pre-submit check in the form action).
 
-- **Frontend**: validate all form fields before submission (required fields, numeric ranges, date range constraints) to provide immediate feedback and reduce unnecessary API calls
-- **Backend**: add stricter domain-level validation where needed (e.g. metric name format, value range sanity checks)
+What remains for production:
+
+- **Frontend**: extend validation to all other fields — required field feedback, date range constraint checks, and sensor ID format rules — to reduce unnecessary API calls
+- **Backend**: add stricter domain-level validation for remaining fields (e.g. metric name format rules, sensor ID character constraints) and consider enforcing constraints for custom/unknown metrics
 
 ---
 

@@ -103,9 +103,20 @@ All endpoints are prefixed with `/api`. Dates are ISO-8601 strings. Error respon
 | `metric` | Yes |
 | `value` | Yes |
 
+The following metrics have enforced value ranges:
+
+| Metric | Valid range | Unit |
+|---|---|---|
+| `temperature` | −90 to 60 | °C |
+| `humidity` | 0 to 100 | % |
+| `wind_speed` | 0 to 500 | km/h |
+| `pressure` | 300 to 1100 | hPa |
+
+Custom metric names are accepted without range constraints.
+
 **Responses:**
 - `201 Created` — reading recorded, returns reading with `id` and `recordedAt`
-- `400 Bad Request` — validation failure
+- `400 Bad Request` — validation failure, or value outside the valid range for a known metric
 - `404 Not Found` — sensor does not exist
 
 ---
@@ -160,6 +171,7 @@ All endpoints are prefixed with `/api`. Dates are ISO-8601 strings. Error respon
 │   ├── entity/            JPA entities (Sensor, SensorReading)
 │   ├── dto/               Request/response records
 │   ├── exception/         Domain exceptions + GlobalExceptionHandler
+│   ├── validation/        MetricConstraints — valid ranges for known metrics
 │   └── config/            OpenAPI and H2 console configuration
 ├── frontend/
 │   ├── src/
