@@ -20,11 +20,7 @@ async function queryAction(prevState, formData) {
   const from = formData.get('from') || undefined
   const to = formData.get('to') || undefined
 
-  const body = { sensorIds: sensorIds ?? undefined, metrics }
-  if (from) body.from = from
-  if (to) body.to = to
-
-  return queryAverages(body)
+  return queryAverages({ sensorIds, metrics, from, to })
 }
 
 export default function QueryAverages() {
@@ -35,8 +31,8 @@ export default function QueryAverages() {
       <h2>Query Averages</h2>
       <p className="subtitle">Compute average metric values across sensors and a date range.</p>
       <div className="endpoint-badge">
-        <span className="method">POST</span>
-        <span>/api/readings/query</span>
+        <span className="method">GET</span>
+        <span>/api/readings/averages</span>
       </div>
 
       <form action={formAction} className="form">

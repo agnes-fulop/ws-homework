@@ -230,22 +230,17 @@ Custom metric names are accepted without range constraints.
 
 ### Query Average Metrics
 
-`POST /api/readings/query`
+`GET /api/readings/averages`
 
-**Request body:**
-```json
-{
-  "sensorIds": ["sensor-berlin-01", "sensor-paris-01"],
-  "metrics": ["temperature", "humidity"],
-  "from": "2025-04-01",
-  "to": "2025-04-30"
-}
+**Example request:**
+```
+GET /api/readings/averages?metrics=temperature&metrics=humidity&sensorIds=sensor-berlin-01&sensorIds=sensor-paris-01&from=2025-04-01&to=2025-04-30
 ```
 
-| Field | Required | Notes |
+| Parameter | Required | Notes |
 |---|---|---|
-| `sensorIds` | No | `null` or omitted = all sensors; `[]` = returns empty result immediately |
-| `metrics` | Yes | At least one value required |
+| `metrics` | Yes | Repeat for multiple values: `?metrics=temperature&metrics=humidity` |
+| `sensorIds` | No | Omitted = all sensors; repeat for multiple values |
 | `from` | No | ISO-8601 date; must be provided together with `to` |
 | `to` | No | ISO-8601 date; must be provided together with `from` |
 
