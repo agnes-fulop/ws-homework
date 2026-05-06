@@ -3,6 +3,8 @@ package com.example.homeworkapi.service;
 import com.example.homeworkapi.dto.RegisterSensorRequest;
 import com.example.homeworkapi.dto.SensorResponse;
 import com.example.homeworkapi.entity.Sensor;
+
+import java.util.List;
 import com.example.homeworkapi.exception.SensorAlreadyExistsException;
 import com.example.homeworkapi.repository.SensorRepository;
 import org.slf4j.Logger;
@@ -34,6 +36,12 @@ public class SensorServiceImpl implements SensorService {
             log.warn("Rejected duplicate sensor registration: sensorId={}", request.sensorId());
             throw new SensorAlreadyExistsException(request.sensorId());
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SensorResponse> listSensors() {
+        return sensorRepository.findAll().stream().map(this::toResponse).toList();
     }
 
     private Sensor toEntity(RegisterSensorRequest request) {

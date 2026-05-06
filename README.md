@@ -61,6 +61,25 @@ All endpoints are prefixed with `/api`. Dates are ISO-8601 strings. Error respon
 |---|---|---|
 | `GET` | `/api/health` | `200 OK` |
 
+### List Sensors
+
+`GET /api/sensors`
+
+Returns all registered sensors.
+
+**Response body:**
+```json
+[
+  { "id": 1, "sensorId": "sensor-berlin-01", "country": "Germany", "city": "Berlin" },
+  { "id": 2, "sensorId": "sensor-paris-01",  "country": "France",  "city": "Paris"  }
+]
+```
+
+**Responses:**
+- `200 OK` — empty array if no sensors registered
+
+---
+
 ### Register Sensor
 
 `POST /api/sensors`

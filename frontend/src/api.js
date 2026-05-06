@@ -14,6 +14,10 @@ async function fetchApi(url, options) {
   }
 }
 
+export function getSensors() {
+  return fetchApi('/api/sensors', { method: 'GET' })
+}
+
 export function registerSensor(body) {
   return fetchApi('/api/sensors', {
     method: 'POST',
