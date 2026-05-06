@@ -6,6 +6,23 @@ For production considerations (auth, database choice, testing strategy, and engi
 
 ---
 
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Running Locally (without Docker)](#running-locally-without-docker)
+- [Running with Docker](#running-with-docker)
+- [Developer Tools](#developer-tools)
+- [Data Model](#data-model)
+- [API Reference](#api-reference)
+  - [Health](#health)
+  - [List Sensors](#list-sensors)
+  - [Register Sensor](#register-sensor)
+  - [Record Reading](#record-reading)
+  - [Query Average Metrics](#query-average-metrics)
+- [Project Structure](#project-structure)
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -19,6 +36,66 @@ For production considerations (auth, database choice, testing strategy, and engi
 | Container | Docker + nginx |
 
 > **Note:** The H2 database is in-memory — all data is lost on restart. It is only used for the purpose of this exercise.
+
+---
+
+## Running Locally (without Docker)
+
+### Prerequisites
+- Java 25
+- Maven 3.6+
+- Node.js 18+
+
+### 1. Start the backend
+
+```bash
+mvn spring-boot:run
+```
+
+The API starts on [http://localhost:8080](http://localhost:8080).
+
+### 2. Start the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend starts on [http://localhost:5173](http://localhost:5173) and proxies `/api` requests to the backend automatically.
+
+---
+
+## Running with Docker
+
+### Prerequisites
+- Docker Desktop
+
+### Start both services
+
+```bash
+docker compose up --build
+```
+
+| Service | URL |
+|---|---|
+| Frontend | [http://localhost:3000](http://localhost:3000) |
+| Backend API | [http://localhost:8080](http://localhost:8080) |
+
+To stop: `docker compose down`
+
+> In Docker, nginx serves the production frontend build and proxies `/api/*` to the backend container. The Vite dev proxy is not used.
+
+---
+
+## Developer Tools
+
+| Tool | URL | Notes |
+|---|---|---|
+| Swagger UI | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | Interactive API documentation |
+| Actuator Health | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) | |
+| Actuator Metrics | [http://localhost:8080/actuator/metrics](http://localhost:8080/actuator/metrics) | Lists available metrics; append `/{metric.name}` for detail |
+| Actuator Loggers | [http://localhost:8080/actuator/loggers](http://localhost:8080/actuator/loggers) | View and change log levels at runtime via POST |
 
 ---
 
@@ -206,7 +283,7 @@ Custom metric names are accepted without range constraints.
 ├── frontend/
 │   ├── src/
 │   │   ├── components/    RegisterSensor, RecordReading, QueryAverages
-│   │   ├── api.js         Fetch helpers for all POST endpoints
+│   │   ├── api.js         Fetch helpers for all endpoints
 │   │   └── App.jsx        Tab-based layout
 │   ├── nginx.conf         Production proxy config (Docker only)
 │   └── Dockerfile
@@ -214,63 +291,3 @@ Custom metric names are accepted without range constraints.
 ├── docker-compose.yml
 └── pom.xml
 ```
-
----
-
-## Running Locally (without Docker)
-
-### Prerequisites
-- Java 25
-- Maven 3.6+
-- Node.js 18+
-
-### 1. Start the backend
-
-```bash
-mvn spring-boot:run
-```
-
-The API starts on [http://localhost:8080](http://localhost:8080).
-
-### 2. Start the frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The frontend starts on [http://localhost:5173](http://localhost:5173) and proxies `/api` requests to the backend automatically.
-
----
-
-## Running with Docker
-
-### Prerequisites
-- Docker Desktop
-
-### Start both services
-
-```bash
-docker compose up --build
-```
-
-| Service | URL |
-|---|---|
-| Frontend | [http://localhost:3000](http://localhost:3000) |
-| Backend API | [http://localhost:8080](http://localhost:8080) |
-
-To stop: `docker compose down`
-
-> In Docker, nginx serves the production frontend build and proxies `/api/*` to the backend container. The Vite dev proxy is not used.
-
----
-
-## Developer Tools
-
-| Tool | URL | Notes |
-|---|---|---|
-| Swagger UI | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) | Interactive API documentation |
-| Actuator Health | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) | |
-| Actuator Metrics | [http://localhost:8080/actuator/metrics](http://localhost:8080/actuator/metrics) | Lists available metrics; append `/{metric.name}` for detail |
-| Actuator Loggers | [http://localhost:8080/actuator/loggers](http://localhost:8080/actuator/loggers) | View and change log levels at runtime via POST |

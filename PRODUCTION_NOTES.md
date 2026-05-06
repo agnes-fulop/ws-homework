@@ -4,6 +4,17 @@ This document outlines considerations that would be addressed before taking this
 
 ---
 
+## Table of Contents
+
+- [Authentication & Authorisation](#authentication--authorisation)
+- [Input Validation](#input-validation)
+- [Database](#database)
+- [Testing](#testing)
+- [Logging & Monitoring](#logging--monitoring)
+- [Code Quality & Engineering Standards](#code-quality--engineering-standards)
+
+---
+
 ## Authentication & Authorisation
 
 The current API has no access control. In production:
