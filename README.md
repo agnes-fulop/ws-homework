@@ -2,6 +2,8 @@
 
 A REST API for registering weather sensors and ingesting metric readings, with an endpoint to query average values across sensors and time ranges. Includes a React 19 demo frontend.
 
+For production considerations (auth, database choice, testing strategy, and engineering standards) see [PRODUCTION_NOTES.md](PRODUCTION_NOTES.md).
+
 ---
 
 ## Tech Stack
